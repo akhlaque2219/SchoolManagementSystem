@@ -1,0 +1,51 @@
+@model FeeReportViewModel
+@{ ViewData["Title"] = "Fee Report"; }
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h1 class="h3 fw-bold mb-0"><i class="fas fa-dollar-sign me-2 text-success"></i>Fee Collection Report</h1>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="fas fa-print me-2"></i>Print</button>
+        <a asp-action="Index" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-left me-2"></i>Reports</a>
+    </div>
+</div>
+<div class="card border-0 shadow-sm mb-4"><div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label small fw-semibold">CLASS</label><select name="classId" asp-items="ViewBag.Classes" class="form-select"><option value="">All Classes</option></select></div>
+        <div class="col-md-3"><label class="form-label small fw-semibold">STATUS</label><select name="status" class="form-select"><option value="">All</option>@foreach(var s in Enum.GetNames(typeof(FeeStatus))){<option value="@s" selected="@(ViewBag.StatusFilter==s)">@s</option>}</select></div>
+        <div class="col-md-3"><label class="form-label small fw-semibold">MONTH</label><input type="text" name="month" value="@ViewBag.MonthFilter" class="form-control" placeholder="e.g. March 2025" /></div>
+        <div class="col-md-3"><button type="submit" class="btn btn-success w-100"><i class="fas fa-search me-1"></i>Generate</button></div>
+    </form>
+</div></div>
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="h3 fw-bold text-success">$@Model.TotalCollected.ToString("N0")</div><div class="small text-muted">Collected</div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="h3 fw-bold text-danger">$@Model.TotalPending.ToString("N0")</div><div class="small text-muted">Pending</div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="h3 fw-bold text-primary">@Model.PaidCount</div><div class="small text-muted">Paid</div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm text-center p-3"><div class="h3 fw-bold text-warning">@Model.OverdueCount</div><div class="small text-muted">Overdue</div></div></div>
+</div>
+@if (Model.Rows.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0"><div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark"><tr><th>Student</th><th>Class</th><th>Fee Type</th><th>Month</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model.Rows)
+                    {
+                        var sc = r.Status switch { "Paid"=>"success","Overdue"=>"danger","Partial"=>"warning",_=>"secondary"};
+                        <tr class="@(r.Status=="Overdue"?"table-warning":"")">
+                            <td class="fw-semibold">@r.StudentName</td>
+                            <td class="small text-muted">@r.ClassName</td>
+                            <td class="small">@r.FeeName</td>
+                            <td class="small text-muted">@r.Month</td>
+                            <td>$@r.Amount.ToString("N0")</td>
+                            <td class="text-success fw-bold">$@r.Paid.ToString("N0")</td>
+                            <td class="@(r.Balance>0?"text-danger fw-bold":"text-success")">$@r.Balance.ToString("N0")</td>
+                            <td><span class="badge bg-@sc">@r.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div></div>
+        <div class="card-footer bg-white"><small class="text-muted">@Model.Rows.Count records | Collection rate: @(Model.TotalExpected > 0 ? Math.Round(Model.TotalCollected/Model.TotalExpected*100,1) : 0)%</small></div>
+    </div>
+}
+else { <div class="card border-0 shadow-sm p-5 text-center text-muted"><i class="fas fa-dollar-sign fa-3x mb-3 d-block opacity-25"></i><h5>No fee data for selected filters</h5></div> }

@@ -1,0 +1,68 @@
+@model Examination
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Examination" : "New Examination";
+}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li><li class="breadcrumb-item"><a asp-action="Index">Examinations</a></li><li class="breadcrumb-item active">@(isEdit?"Edit":"New")</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-file-alt me-2 text-danger"></i>@(isEdit?"Edit":"Schedule New") Examination</h1>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:750px">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit?"Edit":"Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Mid-Term Examination 2025" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExamType" class="form-label fw-semibold"></label>
+                    <select asp-for="ExamType" class="form-select">
+                        @foreach (var t in (string[])ViewBag.ExamTypes) { <option value="@t">@t</option> }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ClassId" class="form-label fw-semibold">Class (leave blank for all)</label>
+                    <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-select"><option value="">All Classes</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="StartDate" class="form-label fw-semibold"></label>
+                    <input asp-for="StartDate" type="date" class="form-control" />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EndDate" class="form-label fw-semibold"></label>
+                    <input asp-for="EndDate" type="date" class="form-control" />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Status" class="form-label fw-semibold"></label>
+                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<ExamStatus>()" class="form-select"></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AcademicYear" class="form-label fw-semibold"></label>
+                    <input asp-for="AcademicYear" class="form-control" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch mb-1">
+                        <input asp-for="ResultDeclared" class="form-check-input" type="checkbox" role="switch" />
+                        <label asp-for="ResultDeclared" class="form-check-label fw-semibold">Results Declared</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-danger px-4"><i class="fas fa-save me-2"></i>@(isEdit?"Update":"Create")</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

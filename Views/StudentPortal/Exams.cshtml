@@ -1,0 +1,31 @@
+@model IEnumerable<Examination>
+@{ Layout = "~/Views/StudentPortal/_LayoutStudent.cshtml"; ViewData["Title"] = "My Exams"; }
+<h4 class="fw-bold mb-4"><i class="fas fa-file-alt me-2 text-danger"></i>Upcoming & Past Exams</h4>
+<div class="row g-4">
+    @foreach (var exam in Model)
+    {
+        var sc = exam.Status switch { ExamStatus.Scheduled => "primary", ExamStatus.Ongoing => "warning", ExamStatus.Completed => "success", _ => "secondary" };
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-light text-dark">@exam.ExamType</span>
+                        <span class="badge bg-@sc">@exam.Status</span>
+                    </div>
+                    <h6 class="fw-bold mb-2">@exam.Title</h6>
+                    <div class="small text-muted mb-1"><i class="fas fa-calendar me-2"></i>@exam.StartDate.ToString("MMM dd") – @exam.EndDate.ToString("MMM dd, yyyy")</div>
+                    @if (exam.Schedules.Any())
+                    {
+                        <hr class="my-2">
+                        @foreach (var s in exam.Schedules.OrderBy(x => x.ExamDate).Take(3))
+                        {
+                            <div class="small mb-1"><i class="fas fa-book me-2 text-muted"></i><strong>@(s.Subject?.Name ?? "—")</strong> – @s.ExamDate.ToString("MMM dd") @s.TimeRange, Room @s.Room</div>
+                        }
+                    }
+                    @if (exam.ResultDeclared) { <span class="badge bg-success mt-1"><i class="fas fa-check me-1"></i>Results Declared</span> }
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any()) { <div class="col-12 text-center text-muted py-5"><i class="fas fa-file-alt fa-3x d-block mb-3 opacity-25"></i><h5>No exams scheduled</h5></div> }
+</div>

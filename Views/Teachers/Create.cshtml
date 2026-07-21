@@ -1,0 +1,101 @@
+@model Teacher
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Teacher" : "Add Teacher";
+}
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Teachers</a></li>
+            <li class="breadcrumb-item active">@(isEdit ? "Edit" : "Add")</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-user-tie me-2 text-success"></i>@(isEdit ? "Edit Teacher" : "Add New Teacher")</h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-4">
+                <div class="col-12"><h6 class="text-success fw-semibold border-bottom pb-2">Personal Information</h6></div>
+                <div class="col-md-4">
+                    <label asp-for="FirstName" class="form-label fw-semibold"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="LastName" class="form-label fw-semibold"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TeacherId" class="form-label fw-semibold"></label>
+                    <input asp-for="TeacherId" class="form-control" placeholder="Auto-generated" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Gender" class="form-label fw-semibold"></label>
+                    <select asp-for="Gender" class="form-select">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="JoiningDate" class="form-label fw-semibold"></label>
+                    <input asp-for="JoiningDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Salary" class="form-label fw-semibold"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input asp-for="Salary" class="form-control" placeholder="0.00" />
+                    </div>
+                </div>
+
+                <div class="col-12"><h6 class="text-success fw-semibold border-bottom pb-2">Academic Information</h6></div>
+                <div class="col-md-6">
+                    <label asp-for="Qualification" class="form-label fw-semibold"></label>
+                    <input asp-for="Qualification" class="form-control" placeholder="e.g. M.Sc Mathematics" />
+                    <span asp-validation-for="Qualification" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Specialization" class="form-label fw-semibold"></label>
+                    <input asp-for="Specialization" class="form-control" placeholder="Subject specialization" />
+                </div>
+
+                <div class="col-12"><h6 class="text-success fw-semibold border-bottom pb-2">Contact</h6></div>
+                <div class="col-md-4">
+                    <label asp-for="Email" class="form-label fw-semibold"></label>
+                    <input asp-for="Email" type="email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Phone" class="form-label fw-semibold"></label>
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch mt-4">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-2"></i>@(isEdit ? "Update" : "Create") Teacher</button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

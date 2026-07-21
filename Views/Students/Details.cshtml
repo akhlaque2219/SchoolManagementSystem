@@ -1,0 +1,131 @@
+@model Student
+@{
+    ViewData["Title"] = "Student Details";
+    int present = ViewBag.AttendancePresent;
+    int total = ViewBag.AttendanceTotal;
+    double attRate = total > 0 ? Math.Round((double)present / total * 100, 1) : 0;
+}
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Students</a></li>
+            <li class="breadcrumb-item active">@Model.FullName</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row g-4">
+    <!-- Profile Card -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm text-center p-4">
+            <div class="avatar-circle-lg @(Model.Gender == "Female" ? "bg-pink" : "bg-primary") text-white mx-auto mb-3">
+                @Model.FirstName[0]@Model.LastName[0]
+            </div>
+            <h4 class="fw-bold mb-1">@Model.FullName</h4>
+            <p class="text-muted mb-1"><code>@Model.StudentId</code></p>
+            <p class="text-muted mb-3">@(Model.Class?.FullName ?? "No Class Assigned")</p>
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                @if (Model.IsActive)
+                { <span class="badge bg-success px-3 py-2"><i class="fas fa-circle me-1" style="font-size:8px"></i>Active</span> }
+                else
+                { <span class="badge bg-secondary px-3 py-2">Inactive</span> }
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas @(Model.Gender == "Female" ? "fa-venus" : "fa-mars") me-1"></i>@Model.Gender
+                </span>
+            </div>
+            <div class="row g-2 text-start border rounded p-3">
+                <div class="col-6 small"><span class="text-muted">Age:</span> @Model.Age years</div>
+                <div class="col-6 small"><span class="text-muted">DOB:</span> @Model.DateOfBirth.ToString("MMM dd, yyyy")</div>
+                <div class="col-12 small"><span class="text-muted">Email:</span> @Model.Email</div>
+                <div class="col-12 small"><span class="text-muted">Phone:</span> @(Model.Phone ?? "N/A")</div>
+                <div class="col-12 small"><span class="text-muted">Enrolled:</span> @Model.EnrollmentDate.ToString("MMM dd, yyyy")</div>
+                <div class="col-12 small"><span class="text-muted">Guardian:</span> @(Model.GuardianName ?? "N/A")</div>
+                <div class="col-12 small"><span class="text-muted">Guardian Phone:</span> @(Model.GuardianPhone ?? "N/A")</div>
+            </div>
+            <div class="d-grid gap-2 mt-3">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+                <a asp-controller="Attendance" asp-action="StudentReport" asp-route-studentId="@Model.Id" class="btn btn-outline-info">
+                    <i class="fas fa-calendar-check me-2"></i>Attendance Report
+                </a>
+                <a asp-controller="Grades" asp-action="ReportCard" asp-route-studentId="@Model.Id" class="btn btn-outline-warning">
+                    <i class="fas fa-file-alt me-2"></i>Report Card
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grades & Attendance -->
+    <div class="col-xl-8">
+        <!-- Attendance Summary -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-calendar-check me-2 text-info"></i>Attendance Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    <div class="col-3">
+                        <div class="h4 fw-bold text-success">@present</div>
+                        <div class="small text-muted">Present</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="h4 fw-bold text-danger">@(total - present)</div>
+                        <div class="small text-muted">Absent</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="h4 fw-bold text-info">@total</div>
+                        <div class="small text-muted">Total Days</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="h4 fw-bold @(attRate >= 75 ? "text-success" : "text-danger")">@attRate%</div>
+                        <div class="small text-muted">Rate</div>
+                    </div>
+                </div>
+                <div class="progress mt-3" style="height:10px">
+                    <div class="progress-bar @(attRate >= 75 ? "bg-success" : "bg-danger")" style="width:@attRate%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grades -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-star me-2 text-warning"></i>Academic Results</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Grades.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Subject</th><th>Exam Type</th><th>Marks</th><th>%</th><th>Grade</th><th>Date</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var g in Model.Grades.OrderByDescending(x => x.ExamDate))
+                                {
+                                    <tr>
+                                        <td>@g.Subject?.Name</td>
+                                        <td><span class="badge bg-light text-dark">@g.ExamType</span></td>
+                                        <td>@g.MarksObtained / @g.TotalMarks</td>
+                                        <td>@g.Percentage%</td>
+                                        <td>
+                                            <span class="badge @(g.LetterGrade.StartsWith("A") ? "bg-success" : g.LetterGrade == "B" ? "bg-primary" : g.LetterGrade == "C" ? "bg-info" : g.LetterGrade == "D" ? "bg-warning" : "bg-danger")">
+                                                @g.LetterGrade
+                                            </span>
+                                        </td>
+                                        <td class="text-muted small">@g.ExamDate.ToString("MMM dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted"><i class="fas fa-star fa-2x mb-2 d-block opacity-25"></i>No grades recorded yet</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

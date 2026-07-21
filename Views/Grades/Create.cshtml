@@ -1,0 +1,61 @@
+@model Grade
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Grade" : "Record Grade";
+}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li><li class="breadcrumb-item"><a asp-action="Index">Grades</a></li><li class="breadcrumb-item active">@(isEdit ? "Edit" : "Record")</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-star me-2 text-warning"></i>@(isEdit ? "Edit Grade" : "Record New Grade")</h1>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:650px">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="StudentId" class="form-label fw-semibold">Student</label>
+                    <select asp-for="StudentId" asp-items="ViewBag.Students" class="form-select"><option value="">-- Select Student --</option></select>
+                    <span asp-validation-for="StudentId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SubjectId" class="form-label fw-semibold">Subject</label>
+                    <select asp-for="SubjectId" asp-items="ViewBag.Subjects" class="form-select"><option value="">-- Select Subject --</option></select>
+                    <span asp-validation-for="SubjectId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExamType" class="form-label fw-semibold"></label>
+                    <select asp-for="ExamType" asp-items="Html.GetEnumSelectList<ExamType>()" class="form-select"></select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExamDate" class="form-label fw-semibold"></label>
+                    <input asp-for="ExamDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="MarksObtained" class="form-label fw-semibold"></label>
+                    <input asp-for="MarksObtained" type="number" step="0.5" class="form-control" placeholder="0" />
+                    <span asp-validation-for="MarksObtained" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TotalMarks" class="form-label fw-semibold"></label>
+                    <input asp-for="TotalMarks" type="number" step="0.5" class="form-control" placeholder="100" />
+                    <span asp-validation-for="TotalMarks" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="AcademicYear" class="form-label fw-semibold"></label>
+                    <input asp-for="AcademicYear" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Remarks" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Optional remarks..."></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-warning px-4"><i class="fas fa-save me-2"></i>@(isEdit ? "Update" : "Save") Grade</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

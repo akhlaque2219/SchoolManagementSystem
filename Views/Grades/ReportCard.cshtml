@@ -1,0 +1,70 @@
+@model IEnumerable<Grade>
+@{
+    ViewData["Title"] = "Report Card";
+    var student = (Student)ViewBag.Student;
+    double overall = ViewBag.Overall;
+    string overallGrade = overall switch { >= 90 => "A+", >= 80 => "A", >= 70 => "B", >= 60 => "C", >= 50 => "D", _ => "F" };
+}
+
+<div class="mt-4 mb-3 d-flex justify-content-between align-items-center">
+    <div>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Students" asp-action="Index">Students</a></li><li class="breadcrumb-item active">Report Card</li></ol></nav>
+        <h1 class="h3 fw-bold"><i class="fas fa-file-alt me-2 text-warning"></i>Report Card</h1>
+    </div>
+    <button onclick="window.print()" class="btn btn-outline-secondary"><i class="fas fa-print me-2"></i>Print</button>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-circle-lg @(student.Gender == "Female" ? "bg-pink" : "bg-primary") text-white">@student.FirstName[0]@student.LastName[0]</div>
+                    <div>
+                        <h4 class="fw-bold mb-1">@student.FullName</h4>
+                        <div class="text-muted"><code>@student.StudentId</code> | @(student.Class?.FullName ?? "No Class")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="display-4 fw-bold @(overall >= 70 ? "text-success" : overall >= 40 ? "text-warning" : "text-danger")">@overallGrade</div>
+                <div class="text-muted">Overall: @overall%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var subjectGroup in Model.GroupBy(g => g.Subject?.Name ?? "Unknown"))
+{
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+            <h6 class="fw-semibold mb-0"><i class="fas fa-book me-2 text-info"></i>@subjectGroup.Key</h6>
+            <span class="text-muted small">@subjectGroup.Count() exam(s)</span>
+        </div>
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead class="table-light"><tr><th>Exam Type</th><th>Date</th><th>Marks</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var g in subjectGroup.OrderBy(x => x.ExamType))
+                    {
+                        <tr>
+                            <td>@g.ExamType</td>
+                            <td>@g.ExamDate.ToString("MMM dd, yyyy")</td>
+                            <td>@g.MarksObtained / @g.TotalMarks</td>
+                            <td>@g.Percentage%</td>
+                            <td><span class="badge @(g.LetterGrade.StartsWith("A") ? "bg-success" : g.LetterGrade == "B" ? "bg-primary" : "bg-warning text-dark")">@g.LetterGrade</span></td>
+                            <td>@if (g.IsPassed) { <span class="text-success fw-semibold"><i class="fas fa-check me-1"></i>Pass</span> } else { <span class="text-danger fw-semibold"><i class="fas fa-times me-1"></i>Fail</span> }</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm p-5 text-center text-muted">
+        <i class="fas fa-file-alt fa-3x mb-3 opacity-25 d-block"></i>No grades recorded for this student.
+    </div>
+}

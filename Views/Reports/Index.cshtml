@@ -1,0 +1,47 @@
+@{ ViewData["Title"] = "Reports"; }
+
+<div class="mt-4 mb-3">
+    <h1 class="h3 fw-bold"><i class="fas fa-chart-bar me-2 text-success"></i>Reports & Analytics</h1>
+    <p class="text-muted">Generate detailed reports for all school modules</p>
+</div>
+
+<div class="row g-4">
+    @{
+        var reports = new[] {
+            ("Attendance", "fas fa-calendar-check", "info",    "AttendanceReport",  "Daily, monthly & student-wise attendance analysis"),
+            ("Grades",     "fas fa-star",           "warning", "GradesReport",       "Academic performance, exam results & grade distribution"),
+            ("Fee",        "fas fa-dollar-sign",    "success", "FeeReport",          "Collections, pending dues, overdue payments"),
+            ("Library",    "fas fa-book-open",      "primary", "LibraryReport",      "Book circulation, overdue issues & fines"),
+            ("Students",   "fas fa-user-graduate",  "danger",  "StudentsReport",     "Student roster, class-wise demographics"),
+            ("Exams",      "fas fa-file-alt",       "secondary","ExamReport",        "Examination schedule, results & pass/fail stats"),
+        };
+        var actions = new[] { "Attendance", "Grades", "Fees", "Library", "Students", "Examinations" };
+    }
+    @for (int i = 0; i < reports.Length; i++)
+    {
+        var (title, icon, color, _, desc) = reports[i];
+        var action = actions[i];
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100 report-card" style="transition:.2s;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-3 p-3 bg-@color bg-opacity-10">
+                            <i class="@icon fs-4 text-@color"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">@title Report</h6>
+                            <small class="text-muted">@desc</small>
+                        </div>
+                    </div>
+                    <a asp-action="@action" class="btn btn-@color btn-sm stretched-link">
+                        <i class="fas fa-arrow-right me-2"></i>Generate Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+.report-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.1) !important; }
+</style>

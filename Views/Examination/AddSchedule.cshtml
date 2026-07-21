@@ -1,0 +1,63 @@
+@model ExamSchedule
+@{ ViewData["Title"] = "Add Exam Schedule"; var exam = (Examination)ViewBag.Exam; }
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Examinations</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@exam.Id">@exam.Title</a></li><li class="breadcrumb-item active">Add Schedule</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-calendar-plus me-2 text-danger"></i>Add Subject Schedule</h1>
+    <p class="text-muted">For: <strong>@exam.Title</strong></p>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body p-4">
+        <form asp-action="AddSchedule" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ExaminationId" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="SubjectId" class="form-label fw-semibold">Subject</label>
+                    <select asp-for="SubjectId" asp-items="ViewBag.Subjects" class="form-select"><option value="">-- Select Subject --</option></select>
+                    <span asp-validation-for="SubjectId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TeacherId" class="form-label fw-semibold">Invigilator</label>
+                    <select asp-for="TeacherId" asp-items="ViewBag.Teachers" class="form-select"><option value="">-- Select Teacher --</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ExamDate" class="form-label fw-semibold"></label>
+                    <input asp-for="ExamDate" type="date" class="form-control" />
+                    <span asp-validation-for="ExamDate" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="StartTime" class="form-label fw-semibold"></label>
+                    <input asp-for="StartTime" type="time" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EndTime" class="form-label fw-semibold"></label>
+                    <input asp-for="EndTime" type="time" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Room" class="form-label fw-semibold"></label>
+                    <input asp-for="Room" class="form-control" placeholder="e.g. Hall A" />
+                    <span asp-validation-for="Room" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TotalMarks" class="form-label fw-semibold"></label>
+                    <input asp-for="TotalMarks" type="number" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PassMarks" class="form-label fw-semibold"></label>
+                    <input asp-for="PassMarks" type="number" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Instructions" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Instructions" class="form-control" rows="2" placeholder="Special instructions..."></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-danger px-4"><i class="fas fa-save me-2"></i>Add Schedule</button>
+                <a asp-action="Details" asp-route-id="@exam.Id" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

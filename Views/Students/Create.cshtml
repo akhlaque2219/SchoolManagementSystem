@@ -1,0 +1,120 @@
+@model Student
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Student" : "Add Student";
+}
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Students</a></li>
+            <li class="breadcrumb-item active">@(isEdit ? "Edit" : "Add")</li>
+        </ol>
+    </nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-user-@(isEdit ? "edit" : "plus") me-2 text-primary"></i>@(isEdit ? "Edit Student" : "Add New Student")</h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="All" class="alert alert-danger" style="display:none"></div>
+
+            <div class="row g-4">
+                <div class="col-12"><h6 class="text-primary fw-semibold border-bottom pb-2">Personal Information</h6></div>
+
+                <div class="col-md-4">
+                    <label asp-for="FirstName" class="form-label fw-semibold"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="LastName" class="form-label fw-semibold"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="StudentId" class="form-label fw-semibold"></label>
+                    <input asp-for="StudentId" class="form-control" placeholder="Auto-generated" />
+                    <span asp-validation-for="StudentId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Gender" class="form-label fw-semibold"></label>
+                    <select asp-for="Gender" class="form-select">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="DateOfBirth" class="form-label fw-semibold"></label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EnrollmentDate" class="form-label fw-semibold"></label>
+                    <input asp-for="EnrollmentDate" type="date" class="form-control" />
+                </div>
+
+                <div class="col-12 mt-2"><h6 class="text-primary fw-semibold border-bottom pb-2">Contact Information</h6></div>
+
+                <div class="col-md-4">
+                    <label asp-for="Email" class="form-label fw-semibold"></label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="student@example.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Phone" class="form-label fw-semibold"></label>
+                    <input asp-for="Phone" class="form-control" placeholder="Phone number" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ClassId" class="form-label fw-semibold">Class</label>
+                    <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-select">
+                        <option value="">-- Select Class --</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Address" class="form-control" rows="2" placeholder="Home address"></textarea>
+                </div>
+
+                <div class="col-12 mt-2"><h6 class="text-primary fw-semibold border-bottom pb-2">Guardian Information</h6></div>
+                <div class="col-md-6">
+                    <label asp-for="GuardianName" class="form-label fw-semibold"></label>
+                    <input asp-for="GuardianName" class="form-control" placeholder="Guardian full name" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="GuardianPhone" class="form-label fw-semibold"></label>
+                    <input asp-for="GuardianPhone" class="form-control" placeholder="Guardian phone" />
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active Student</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>@(isEdit ? "Update" : "Create") Student</button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4"><i class="fas fa-times me-2"></i>Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelector('[data-valmsg-summary]') && document.querySelector('[data-valmsg-summary]').closest('.alert')?.removeAttribute('style');
+        // Show validation summary if there are errors
+        document.addEventListener('DOMContentLoaded', function () {
+            var summary = document.querySelector('[data-valmsg-summary]');
+            if (summary && summary.querySelectorAll('li').length > 0) {
+                summary.closest('.alert').style.display = 'block';
+            }
+        });
+    </script>
+}

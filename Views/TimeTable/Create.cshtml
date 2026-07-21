@@ -1,0 +1,71 @@
+@model TimeTable
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Period" : "Add Period";
+}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Time Table</a></li><li class="breadcrumb-item active">@(isEdit?"Edit":"Add")</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-calendar-plus me-2" style="color:#6610f2"></i>@(isEdit?"Edit Period":"Add New Period")</h1>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit?"Edit":"Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="ClassId" class="form-label fw-semibold">Class</label>
+                    <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-select"><option value="">-- Select Class --</option></select>
+                    <span asp-validation-for="ClassId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Day" class="form-label fw-semibold"></label>
+                    <select asp-for="Day" asp-items="Html.GetEnumSelectList<DayOfWeekEnum>()" class="form-select"></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="SubjectId" class="form-label fw-semibold">Subject</label>
+                    <select asp-for="SubjectId" asp-items="ViewBag.Subjects" class="form-select"><option value="">-- Select --</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TeacherId" class="form-label fw-semibold">Teacher</label>
+                    <select asp-for="TeacherId" asp-items="ViewBag.Teachers" class="form-select"><option value="">-- Select --</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PeriodNo" class="form-label fw-semibold"></label>
+                    <input asp-for="PeriodNo" type="number" class="form-control" min="1" max="12" />
+                    <span asp-validation-for="PeriodNo" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="StartTime" class="form-label fw-semibold"></label>
+                    <input asp-for="StartTime" type="time" class="form-control" />
+                    <span asp-validation-for="StartTime" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="EndTime" class="form-label fw-semibold"></label>
+                    <input asp-for="EndTime" type="time" class="form-control" />
+                    <span asp-validation-for="EndTime" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Room" class="form-label fw-semibold"></label>
+                    <input asp-for="Room" class="form-control" placeholder="e.g. 101, Lab 1" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="AcademicYear" class="form-label fw-semibold"></label>
+                    <input asp-for="AcademicYear" class="form-control" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check form-switch mb-1">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn px-4 text-white" style="background:#6610f2"><i class="fas fa-save me-2"></i>@(isEdit?"Update":"Add") Period</button>
+                <a asp-action="Index" asp-route-classId="@Model.ClassId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

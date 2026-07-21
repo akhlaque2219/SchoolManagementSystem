@@ -1,0 +1,78 @@
+@model RegisterViewModel
+@{ ViewData["Title"] = "Register User"; }
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Index">Admin</a></li><li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Users">Users</a></li><li class="breadcrumb-item active">Register</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-user-plus me-2 text-primary"></i>Register New User</h1>
+    <p class="text-muted">Create an account for Admin, Teacher, or Staff members.</p>
+</div>
+
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body p-4">
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label fw-semibold"></label>
+                    <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label fw-semibold"></label>
+                    <input asp-for="LastName" class="form-control" placeholder="Last name" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold"></label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="user@school.edu" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="555-0000" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Role" class="form-label fw-semibold">Role</label>
+                    <select asp-for="Role" class="form-select" id="roleSelect" onchange="toggleTeacherLink()">
+                        <option value="Admin">Admin</option>
+                        <option value="Teacher" selected>Teacher</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6" id="teacherLinkRow">
+                    <label asp-for="TeacherId" class="form-label fw-semibold">Link to Teacher Record</label>
+                    <select asp-for="TeacherId" asp-items="ViewBag.Teachers" class="form-select"><option value="">— None —</option></select>
+                    <div class="form-text">Link so teacher can see their own data.</div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label fw-semibold"></label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Min 6 chars, 1 upper, 1 digit" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label fw-semibold"></label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-user-plus me-2"></i>Create Account</button>
+                <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+    function toggleTeacherLink() {
+        const role = document.getElementById('roleSelect').value;
+        document.getElementById('teacherLinkRow').style.display = role === 'Teacher' ? '' : 'none';
+    }
+    toggleTeacherLink();
+    </script>
+}

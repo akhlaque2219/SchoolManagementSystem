@@ -1,0 +1,101 @@
+@model IEnumerable<BookIssue>
+@{ ViewData["Title"] = "Issued Books"; }
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <div><h1 class="h3 mb-0 fw-bold"><i class="fas fa-hand-holding-heart me-2 text-warning"></i>Issued Books</h1></div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-primary"><i class="fas fa-book me-2"></i>Catalogue</a>
+        <a asp-action="IssueBook" class="btn btn-warning"><i class="fas fa-plus me-2"></i>Issue Book</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    @foreach (var s in Enum.GetNames(typeof(IssueStatus))) { <option value="@s" selected="@(ViewBag.StatusFilter==s)">@s</option> }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-warning me-2"><i class="fas fa-filter me-1"></i>Filter</button>
+                <a asp-action="IssuedBooks" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr><th>Book</th><th>Student</th><th>Issue Date</th><th>Due Date</th><th>Return Date</th><th>Fine</th><th>Status</th><th class="text-center">Actions</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model)
+                    {
+                        var isOverdue = i.Status == IssueStatus.Issued && DateTime.Today > i.DueDate;
+                        <tr class="@(isOverdue ? "table-warning" : "")">
+                            <td>
+                                <div class="fw-semibold">@i.Book?.Title</div>
+                                <small class="text-muted">@i.Book?.Author</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@i.Student?.FullName</div>
+                                <small class="text-muted"><code>@i.Student?.StudentId</code></small>
+                            </td>
+                            <td class="small">@i.IssueDate.ToString("MMM dd, yyyy")</td>
+                            <td class="small @(isOverdue ? "text-danger fw-bold" : "")">
+                                @i.DueDate.ToString("MMM dd, yyyy")
+                                @if (isOverdue) { <br><span class="badge bg-danger">@((DateTime.Today - i.DueDate).Days) days overdue</span> }
+                            </td>
+                            <td class="small text-muted">@(i.ReturnDate?.ToString("MMM dd, yyyy") ?? "—")</td>
+                            <td>@(i.FineAmount > 0 ? $"${i.FineAmount}" : "—") @(i.FinePaid ? "<span class='badge bg-success'>Paid</span>" : "")</td>
+                            <td>
+                                @switch (i.Status) {
+                                    case IssueStatus.Issued:   <span class="badge bg-warning text-dark">Issued</span> break;
+                                    case IssueStatus.Returned: <span class="badge bg-success">Returned</span> break;
+                                    case IssueStatus.Overdue:  <span class="badge bg-danger">Overdue</span> break;
+                                    default: <span class="badge bg-secondary">@i.Status</span> break;
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (i.Status == IssueStatus.Issued || i.Status == IssueStatus.Overdue)
+                                {
+                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#returnModal@(i.Id)">
+                                        <i class="fas fa-undo me-1"></i>Return
+                                    </button>
+                                    <!-- Return Modal -->
+                                    <div class="modal fade" id="returnModal@(i.Id)" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header"><h5 class="modal-title">Return Book</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                                <form asp-action="ReturnBook" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="issueId" value="@i.Id" />
+                                                    <div class="modal-body">
+                                                        <p><strong>@i.Book?.Title</strong> by @i.Student?.FullName</p>
+                                                        @if (isOverdue) { <div class="alert alert-warning small"><i class="fas fa-exclamation-triangle me-1"></i>@((DateTime.Today - i.DueDate).Days) days overdue. Suggested fine: $@((DateTime.Today - i.DueDate).Days * 2)</div> }
+                                                        <div class="mb-3"><label class="form-label fw-semibold">Fine Amount ($)</label><input type="number" name="fineAmount" class="form-control" value="@(isOverdue ? (DateTime.Today - i.DueDate).Days * 2 : 0)" step="0.50" /></div>
+                                                        <div class="form-check"><input type="checkbox" name="finePaid" value="true" class="form-check-input" id="fp@(i.Id)" /><label class="form-check-label" for="fp@(i.Id)">Fine Paid</label></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-success">Confirm Return</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any()) { <tr><td colspan="8" class="text-center py-5 text-muted">No issued books found</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

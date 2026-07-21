@@ -1,0 +1,56 @@
+@model Class
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Class" : "Add Class";
+}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li><li class="breadcrumb-item"><a asp-action="Index">Classes</a></li><li class="breadcrumb-item active">@(isEdit ? "Edit" : "Add")</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-school me-2 text-warning"></i>@(isEdit ? "Edit Class" : "Add New Class")</h1>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label fw-semibold">Class Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Grade 9" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Section" class="form-label fw-semibold"></label>
+                    <select asp-for="Section" class="form-select">
+                        @foreach (var s in new[] { "A","B","C","D","E" }) { <option value="@s">@s</option> }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="AcademicYear" class="form-label fw-semibold"></label>
+                    <input asp-for="AcademicYear" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TeacherId" class="form-label fw-semibold">Class Teacher</label>
+                    <select asp-for="TeacherId" asp-items="ViewBag.Teachers" class="form-select"><option value="">-- Select Teacher --</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="RoomNumber" class="form-label fw-semibold"></label>
+                    <input asp-for="RoomNumber" class="form-control" placeholder="e.g. 101" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="MaxStudents" class="form-label fw-semibold"></label>
+                    <input asp-for="MaxStudents" class="form-control" type="number" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-warning px-4"><i class="fas fa-save me-2"></i>@(isEdit ? "Update" : "Create")</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

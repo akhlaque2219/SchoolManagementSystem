@@ -1,0 +1,121 @@
+@using SchoolManagement.Controllers
+@model AdminDashboardViewModel
+@{ ViewData["Title"] = "Admin Panel"; }
+
+<div class="mt-4 mb-4">
+    <h1 class="h3 fw-bold"><i class="fas fa-user-cog me-2 text-danger"></i>Administration Panel</h1>
+    <p class="text-muted">System overview, user management and access control</p>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-primary mb-0">@Model.TotalUsers</div>
+            <div class="small text-muted">Total Users</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-success mb-0">@Model.ActiveUsers</div>
+            <div class="small text-muted">Active</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-danger mb-0">@Model.AdminCount</div>
+            <div class="small text-muted">Admins</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-info mb-0">@Model.TeacherCount</div>
+            <div class="small text-muted">Teachers</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-warning mb-0">@Model.StaffCount</div>
+            <div class="small text-muted">Staff</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-success mb-0">@Model.StudentCount</div>
+            <div class="small text-muted">Students</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex flex-wrap gap-2 py-3">
+                <a asp-action="Users" class="btn btn-outline-primary btn-sm"><i class="fas fa-users me-2"></i>Manage Users</a>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-sm"><i class="fas fa-user-plus me-2"></i>Register User</a>
+                <a asp-controller="Reports" asp-action="Index" class="btn btn-outline-success btn-sm"><i class="fas fa-chart-bar me-2"></i>Reports</a>
+                <a asp-controller="Students" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-user-graduate me-2"></i>Students</a>
+                <a asp-controller="Teachers" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-chalkboard-teacher me-2"></i>Teachers</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Role Distribution + Recent Users -->
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3"><h6 class="fw-semibold mb-0"><i class="fas fa-chart-pie me-2 text-danger"></i>Role Distribution</h6></div>
+            <div class="card-body">
+                @{
+                    var roleData = new[] {
+                        ("Admin",   Model.AdminCount,   "danger"),
+                        ("Teacher", Model.TeacherCount, "info"),
+                        ("Staff",   Model.StaffCount,   "warning"),
+                        ("Student", Model.StudentCount, "success"),
+                    };
+                }
+                @foreach (var (rname, rcount, rcolor) in roleData)
+                {
+                    var pct = Model.TotalUsers > 0 ? (int)((double)rcount / Model.TotalUsers * 100) : 0;
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-semibold">@rname</span>
+                            <span class="text-muted">@rcount users (@pct%)</span>
+                        </div>
+                        <div class="progress" style="height:8px">
+                            <div class="progress-bar bg-@rcolor" style="width:@pct%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-semibold mb-0"><i class="fas fa-user-clock me-2 text-primary"></i>Recently Added Users</h6>
+                <a asp-action="Users" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light"><tr><th>Name</th><th>Email</th><th>Role</th><th>Added</th><th>Status</th></tr></thead>
+                    <tbody>
+                        @foreach (var u in Model.RecentUsers)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@u.FullName</td>
+                                <td class="small text-muted">@u.Email</td>
+                                <td><span class="badge bg-light text-dark">@(u.PrimaryRole ?? "—")</span></td>
+                                <td class="small text-muted">@u.CreatedAt.ToString("MMM dd")</td>
+                                <td><span class="badge @(u.IsActive ? "bg-success" : "bg-danger")">@(u.IsActive ? "Active" : "Off")</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

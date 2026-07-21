@@ -1,0 +1,111 @@
+@model IEnumerable<UserViewModel>
+@{ ViewData["Title"] = "User Management"; }
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <div>
+        <h1 class="h3 fw-bold mb-0"><i class="fas fa-users-cog me-2 text-danger"></i>User Management</h1>
+        <p class="text-muted mb-0">Manage system accounts and access permissions</p>
+    </div>
+    <a asp-controller="Account" asp-action="Register" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Register User
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search name or email…" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    @foreach (var r in (string[])ViewBag.Roles)
+                    { <option value="@r" selected="@(ViewBag.RoleFilter == r)">@r</option> }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="isActive" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="true"  selected="@(ViewBag.IsActive?.ToString() == "True")">Active</option>
+                    <option value="false" selected="@(ViewBag.IsActive?.ToString() == "False")">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-danger me-2"><i class="fas fa-filter me-1"></i>Filter</button>
+                <a asp-action="Users" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr><th>User</th><th>Email</th><th>Phone</th><th>Role</th><th>Linked To</th><th>Last Login</th><th>Status</th><th class="text-center">Actions</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        var roleColor = u.Role switch { "Admin" => "danger", "Teacher" => "primary", "Staff" => "warning", "Student" => "success", _ => "secondary" };
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div style="width:36px;height:36px;border-radius:50%;background:var(--bs-@roleColor);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:700;flex-shrink:0;">
+                                        @(u.FullName.Length >= 2 ? u.FullName.Substring(0,1) + u.FullName.Split(' ').Last().Substring(0,1) : u.FullName.Substring(0,1))
+                                    </div>
+                                    <span class="fw-semibold">@u.FullName</span>
+                                </div>
+                            </td>
+                            <td class="small text-muted">@u.Email</td>
+                            <td class="small text-muted">@(u.Phone ?? "—")</td>
+                            <td><span class="badge bg-@roleColor">@u.Role</span></td>
+                            <td class="small text-muted">@(u.LinkedEntity ?? "—")</td>
+                            <td class="small text-muted">@(u.LastLogin?.ToLocalTime().ToString("MMM dd, HH:mm") ?? "Never")</td>
+                            <td>
+                                <span class="badge @(u.IsActive ? "bg-success" : "bg-danger")">@(u.IsActive ? "Active" : "Inactive")</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a asp-action="EditUser" asp-route-id="@u.Id" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                                    <form asp-action="ToggleActive" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@u.Id" />
+                                        <button type="submit" class="btn btn-sm @(u.IsActive ? "btn-outline-warning" : "btn-outline-success")" title="@(u.IsActive ? "Deactivate" : "Activate")">
+                                            <i class="fas @(u.IsActive ? "fa-user-slash" : "fa-user-check")"></i>
+                                        </button>
+                                    </form>
+                                    <form asp-action="DeleteUser" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@u.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this user account? This cannot be undone.')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-users fa-2x d-block mb-2 opacity-25"></i>No users found
+                        </td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.Any())
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <small class="text-muted">@Model.Count() users shown</small>
+        </div>
+    }
+</div>

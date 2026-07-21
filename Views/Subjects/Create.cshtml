@@ -1,0 +1,59 @@
+@model Subject
+@{
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Subject" : "Add Subject";
+}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li><li class="breadcrumb-item"><a asp-action="Index">Subjects</a></li><li class="breadcrumb-item active">@(isEdit ? "Edit" : "Add")</li></ol></nav>
+    <h1 class="h3 fw-bold"><i class="fas fa-book me-2 text-info"></i>@(isEdit ? "Edit Subject" : "Add New Subject")</h1>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body p-4">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit) { <input type="hidden" asp-for="Id" /> }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Subject name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Code" class="form-label fw-semibold"></label>
+                    <input asp-for="Code" class="form-control" placeholder="e.g. MATH101" />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TeacherId" class="form-label fw-semibold">Teacher</label>
+                    <select asp-for="TeacherId" asp-items="ViewBag.Teachers" class="form-select"><option value="">-- Select Teacher --</option></select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ClassId" class="form-label fw-semibold">Class</label>
+                    <select asp-for="ClassId" asp-items="ViewBag.Classes" class="form-select"><option value="">-- Select Class --</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CreditHours" class="form-label fw-semibold"></label>
+                    <input asp-for="CreditHours" type="number" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TotalMarks" class="form-label fw-semibold"></label>
+                    <input asp-for="TotalMarks" type="number" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PassMarks" class="form-label fw-semibold"></label>
+                    <input asp-for="PassMarks" type="number" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-info text-white px-4"><i class="fas fa-save me-2"></i>@(isEdit ? "Update" : "Create")</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

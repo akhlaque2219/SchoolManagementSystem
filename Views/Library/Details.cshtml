@@ -1,0 +1,73 @@
+@model Book
+@{ ViewData["Title"] = "Book Details"; }
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Library</a></li><li class="breadcrumb-item active">@Model.Title</li></ol></nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 fw-bold"><i class="fas fa-book me-2 text-primary"></i>Book Details</h1>
+        <div class="d-flex gap-2">
+            <a asp-action="IssueBook" asp-route-bookId="@Model.Id" class="btn btn-warning"><i class="fas fa-hand-holding-heart me-2"></i>Issue</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="fas fa-edit me-2"></i>Edit</a>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <div class="display-1 text-primary mb-3"><i class="fas fa-book"></i></div>
+                <h5 class="fw-bold">@Model.Title</h5>
+                <p class="text-muted">@Model.Author</p>
+                @switch (Model.Status) {
+                    case BookStatus.Available: <span class="badge bg-success fs-6">Available</span> break;
+                    case BookStatus.Issued:    <span class="badge bg-warning text-dark fs-6">Issued Out</span> break;
+                    default: <span class="badge bg-secondary fs-6">@Model.Status</span> break;
+                }
+            </div>
+            <div class="list-group list-group-flush small">
+                @if (!string.IsNullOrEmpty(Model.ISBN)) { <div class="list-group-item d-flex justify-content-between"><span class="text-muted">ISBN</span><code>@Model.ISBN</code></div> }
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Accession</span><code>@Model.AccessionNo</code></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Publisher</span><span>@(Model.Publisher ?? "—")</span></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Year</span><span>@(Model.PublicationYear?.ToString() ?? "—")</span></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Category</span><span class="badge bg-light text-dark">@Model.Category</span></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Shelf</span><span>@(Model.ShelfLocation ?? "—")</span></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Total Copies</span><span class="fw-bold">@Model.TotalCopies</span></div>
+                <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Available</span><span class="fw-bold @(Model.AvailableCopies > 0 ? "text-success" : "text-danger")">@Model.AvailableCopies</span></div>
+                @if (Model.Price.HasValue) { <div class="list-group-item d-flex justify-content-between"><span class="text-muted">Price</span><span>$@Model.Price.Value.ToString("N2")</span></div> }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3"><h6 class="fw-semibold mb-0"><i class="fas fa-history me-2 text-info"></i>Issue History</h6></div>
+            <div class="card-body p-0">
+                @if (Model.Issues.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light"><tr><th>Student</th><th>Issued</th><th>Due</th><th>Returned</th><th>Fine</th><th>Status</th></tr></thead>
+                        <tbody>
+                            @foreach (var i in Model.Issues.OrderByDescending(x => x.IssueDate))
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@i.Student?.FullName</td>
+                                    <td class="small">@i.IssueDate.ToString("MMM dd")</td>
+                                    <td class="small @(i.IsOverdue ? "text-danger fw-bold" : "")">@i.DueDate.ToString("MMM dd")</td>
+                                    <td class="small text-muted">@(i.ReturnDate?.ToString("MMM dd") ?? "—")</td>
+                                    <td class="small">@(i.FineAmount > 0 ? $"${i.FineAmount}" : "—")</td>
+                                    <td>
+                                        @switch (i.Status) {
+                                            case IssueStatus.Issued:   <span class="badge bg-warning text-dark">Issued</span> break;
+                                            case IssueStatus.Returned: <span class="badge bg-success">Returned</span> break;
+                                            case IssueStatus.Overdue:  <span class="badge bg-danger">Overdue</span> break;
+                                            default: <span class="badge bg-secondary">@i.Status</span> break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else { <div class="p-4 text-center text-muted">No issue history</div> }
+            </div>
+        </div>
+    </div>
+</div>

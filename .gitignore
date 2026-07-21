@@ -50,6 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-# debug information files
-*.dwo
+*.config
+*.vsidx
+.vs/SchoolManagementSystem/v17/.suo
+# *.json
+.vs/*
+SchoolManagementSystem/obj/*
+SchoolManagementSystem/bin/*
+obj/*
+bin/*

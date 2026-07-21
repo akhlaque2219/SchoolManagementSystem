@@ -1,0 +1,23 @@
+@model IEnumerable<TimeTable>
+@{ Layout = "~/Views/StudentPortal/_LayoutStudent.cshtml"; ViewData["Title"] = "Timetable"; var days = (DayOfWeekEnum[])ViewBag.Days; var byDay = Model.GroupBy(t => t.Day).ToDictionary(g => g.Key, g => g.OrderBy(t => t.PeriodNo).ToList()); }
+<h4 class="fw-bold mb-4"><i class="fas fa-calendar-alt me-2" style="color:#6610f2"></i>My Timetable – @((Student)ViewBag.Student).Class?.FullName</h4>
+@foreach (var day in days)
+{
+    var slots = byDay.ContainsKey(day) ? byDay[day] : new List<TimeTable>();
+    if (!slots.Any()) continue;
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-0 py-2"><h6 class="fw-bold mb-0" style="color:#6610f2">@day</h6></div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead class="table-light"><tr><th style="width:120px">Time</th><th>Subject</th><th>Teacher</th><th>Room</th></tr></thead>
+                <tbody>
+                    @foreach (var s in slots)
+                    {
+                        <tr><td><span class="badge bg-light text-dark">@s.TimeRange</span></td><td class="fw-semibold">@(s.Subject?.Name ?? "—")</td><td class="small text-muted">@(s.Teacher?.FullName ?? "—")</td><td class="small">@(s.Room ?? "—")</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+@if (!Model.Any()) { <div class="card border-0 shadow-sm p-5 text-center text-muted"><i class="fas fa-calendar-alt fa-3x mb-3 d-block opacity-25"></i><h5>No timetable configured</h5></div> }

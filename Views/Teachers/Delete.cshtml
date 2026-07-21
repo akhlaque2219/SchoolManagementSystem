@@ -1,0 +1,18 @@
+@model Teacher
+@{ ViewData["Title"] = "Delete Teacher"; }
+<div class="mt-4 mb-3"><h1 class="h3 fw-bold text-danger"><i class="fas fa-trash me-2"></i>Delete Teacher</h1></div>
+<div class="card border-0 shadow-sm" style="max-width:500px">
+    <div class="card-body p-4">
+        <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Are you sure you want to delete this teacher?</div>
+        <div class="mb-3">
+            <strong>@Model.FullName</strong> <code>(@Model.TeacherId)</code><br>
+            <small class="text-muted">@Model.Specialization | @Model.Email</small>
+        </div>
+        <form asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger me-2"><i class="fas fa-trash me-2"></i>Yes, Delete</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

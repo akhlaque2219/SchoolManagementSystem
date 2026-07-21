@@ -1,0 +1,132 @@
+@model Student
+@{ Layout = "~/Views/StudentPortal/_LayoutStudent.cshtml"; ViewData["Title"] = "Dashboard"; var student = Model; }
+
+<div class="mb-3">
+    <h4 class="fw-bold">Good @(DateTime.Now.Hour < 12 ? "Morning" : DateTime.Now.Hour < 18 ? "Afternoon" : "Evening"), @student.FirstName! 👋</h4>
+    <p class="text-muted mb-0">@student.Class?.FullName &nbsp;|&nbsp; <code>@student.StudentId</code></p>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold mb-0" style="color:#6610f2">@ViewBag.AttendanceRate<small class="fs-6">%</small></div>
+            <div class="small text-muted mt-1"><i class="fas fa-calendar-check me-1"></i>Attendance</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-success mb-0">@((IEnumerable<Grade>)ViewBag.Grades).Count()</div>
+            <div class="small text-muted mt-1"><i class="fas fa-star me-1"></i>Grades</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold text-warning mb-0">@((IEnumerable<BookIssue>)ViewBag.BooksIssued).Count()</div>
+            <div class="small text-muted mt-1"><i class="fas fa-book-open me-1"></i>Books Issued</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center p-3 h-100">
+            <div class="h3 fw-bold @((int)ViewBag.PendingFees > 0 ? "text-danger" : "text-success") mb-0">@ViewBag.PendingFees</div>
+            <div class="small text-muted mt-1"><i class="fas fa-dollar-sign me-1"></i>Fee Pending</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Grades -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+                <h6 class="fw-semibold mb-0"><i class="fas fa-star me-2 text-warning"></i>Recent Grades</h6>
+                <a asp-action="Grades" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                @{var recentGrades = (IEnumerable<Grade>)ViewBag.RecentGrades;}
+                @if (recentGrades.Any())
+                {
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light"><tr><th>Subject</th><th>Exam</th><th>Score</th><th>Grade</th></tr></thead>
+                        <tbody>
+                            @foreach (var g in recentGrades)
+                            {
+                                var gc = g.LetterGrade switch { "A+" or "A" => "success", "B" => "primary", "C" => "warning", _ => "danger" };
+                                <tr>
+                                    <td class="small fw-semibold">@g.Subject?.Name</td>
+                                    <td class="small text-muted">@g.ExamType</td>
+                                    <td class="small">@g.MarksObtained/@g.TotalMarks</td>
+                                    <td><span class="badge bg-@gc">@g.LetterGrade</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else { <p class="text-muted text-center py-4 small">No grades recorded yet</p> }
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Timetable -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+                <h6 class="fw-semibold mb-0"><i class="fas fa-calendar-alt me-2" style="color:#6610f2"></i>Today's Schedule</h6>
+                <a asp-action="TimeTable" class="btn btn-sm btn-outline-primary">Full TT</a>
+            </div>
+            <div class="card-body p-0">
+                @{
+                    var today = DateTime.Today.DayOfWeek;
+                    var todayEnum = today switch { DayOfWeek.Monday => DayOfWeekEnum.Monday, DayOfWeek.Tuesday => DayOfWeekEnum.Tuesday, DayOfWeek.Wednesday => DayOfWeekEnum.Wednesday, DayOfWeek.Thursday => DayOfWeekEnum.Thursday, DayOfWeek.Friday => DayOfWeekEnum.Friday, DayOfWeek.Saturday => DayOfWeekEnum.Saturday, _ => (DayOfWeekEnum?)null };
+                    var timetable = (IEnumerable<TimeTable>)ViewBag.Timetable;
+                    var todaySlots = todayEnum.HasValue ? timetable.Where(t => t.Day == todayEnum).OrderBy(t => t.StartTime).ToList() : new List<TimeTable>();
+                }
+                @if (todaySlots.Any())
+                {
+                    <div class="p-3">
+                        @foreach (var slot in todaySlots)
+                        {
+                            <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded" style="background:#f3f0ff;">
+                                <div class="text-center" style="min-width:50px;font-size:.7rem;color:#6610f2;font-weight:600;">@slot.TimeRange.Replace(" – ", "<br>")</div>
+                                <div>
+                                    <div class="fw-semibold small">@slot.Subject?.Name</div>
+                                    <div class="text-muted" style="font-size:.75rem;">@slot.Teacher?.FullName | Room @(slot.Room ?? "—")</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else { <p class="text-muted text-center py-4 small">@(today == DayOfWeek.Sunday ? "No classes on Sunday 🎉" : "No classes today")</p> }
+            </div>
+        </div>
+    </div>
+
+    <!-- Issued Books -->
+    @{var books = (IEnumerable<BookIssue>)ViewBag.BooksIssued;}
+    @if (books.Any())
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+                    <h6 class="fw-semibold mb-0"><i class="fas fa-book-open me-2 text-primary"></i>Books Currently Issued</h6>
+                    <a asp-action="Library" class="btn btn-sm btn-outline-primary">All Books</a>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light"><tr><th>Book</th><th>Due Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                            @foreach (var b in books)
+                            {
+                                <tr class="@(b.IsOverdue ? "table-warning" : "")">
+                                    <td class="small fw-semibold">@b.Book?.Title</td>
+                                    <td class="small @(b.IsOverdue ? "text-danger fw-bold" : "")">@b.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td><span class="badge @(b.IsOverdue ? "bg-danger" : "bg-success")">@(b.IsOverdue ? $"Overdue {b.DaysOverdue}d" : "On Time")</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

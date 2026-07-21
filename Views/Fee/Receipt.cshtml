@@ -1,0 +1,68 @@
+@model FeePayment
+@{ ViewData["Title"] = "Payment Receipt"; Layout = "_Layout"; }
+
+<div class="mt-4 mb-3 d-flex justify-content-between align-items-center">
+    <div><h1 class="h3 fw-bold"><i class="fas fa-receipt me-2 text-success"></i>Payment Receipt</h1></div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary"><i class="fas fa-print me-2"></i>Print</button>
+        <a asp-action="Payments" class="btn btn-outline-primary">Back</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="max-width:600px">
+    <div class="card-body p-4">
+        <!-- Header -->
+        <div class="text-center border-bottom pb-3 mb-4">
+            <i class="fas fa-graduation-cap fa-2x text-warning mb-2"></i>
+            <h4 class="fw-bold mb-0">Greenwood Academy</h4>
+            <p class="text-muted mb-0">Fee Payment Receipt</p>
+        </div>
+
+        <!-- Receipt Info -->
+        <div class="row mb-3">
+            <div class="col-6">
+                <div class="small text-muted">Receipt No.</div>
+                <div class="fw-bold"><code>@Model.ReceiptNo</code></div>
+            </div>
+            <div class="col-6 text-end">
+                <div class="small text-muted">Payment Date</div>
+                <div class="fw-bold">@Model.PaymentDate.ToString("MMM dd, yyyy")</div>
+            </div>
+        </div>
+
+        <!-- Student Info -->
+        <div class="bg-light rounded p-3 mb-3">
+            <div class="small text-muted mb-1">Student Details</div>
+            <div class="fw-bold">@Model.Student?.FullName</div>
+            <div class="small text-muted"><code>@Model.Student?.StudentId</code> | @(Model.Student?.Class?.FullName ?? "—")</div>
+        </div>
+
+        <!-- Payment Details -->
+        <table class="table table-sm mb-3">
+            <tbody>
+                <tr><td class="text-muted">Fee Type</td><td class="text-end fw-semibold">@Model.FeeStructure?.Name</td></tr>
+                <tr><td class="text-muted">Category</td><td class="text-end"><span class="badge bg-light text-dark">@Model.FeeStructure?.Category</span></td></tr>
+                <tr><td class="text-muted">Month</td><td class="text-end">@Model.Month</td></tr>
+                <tr><td class="text-muted">Total Amount</td><td class="text-end">$@(Model.FeeStructure?.Amount.ToString("N2") ?? "—")</td></tr>
+                <tr><td class="text-muted">Amount Paid</td><td class="text-end fw-bold text-success">$@Model.AmountPaid.ToString("N2")</td></tr>
+                @if (Model.Balance > 0) { <tr class="table-warning"><td class="text-muted">Balance Due</td><td class="text-end fw-bold text-danger">$@Model.Balance.ToString("N2")</td></tr> }
+                <tr><td class="text-muted">Payment Method</td><td class="text-end">@Model.PaymentMethod</td></tr>
+                @if (!string.IsNullOrEmpty(Model.TransactionId)) { <tr><td class="text-muted">Transaction ID</td><td class="text-end"><code>@Model.TransactionId</code></td></tr> }
+            </tbody>
+        </table>
+
+        <!-- Status -->
+        <div class="text-center mb-3">
+            @{
+                var sc = Model.Status switch { FeeStatus.Paid => "success", FeeStatus.Overdue => "danger", FeeStatus.Partial => "warning", _ => "secondary" };
+            }
+            <span class="badge bg-@sc fs-6 px-4 py-2">@Model.Status</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Remarks)) { <p class="text-muted small border-top pt-2">Remarks: @Model.Remarks</p> }
+
+        <div class="text-center text-muted small border-top pt-3">
+            <i class="fas fa-check-circle text-success me-1"></i>This is a computer-generated receipt and requires no signature.
+        </div>
+    </div>
+</div>

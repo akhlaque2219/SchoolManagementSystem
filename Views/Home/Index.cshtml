@@ -1,0 +1,208 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <div>
+        <h1 class="h3 mb-0 fw-bold"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard</h1>
+        <p class="text-muted mb-0">Welcome back! Here's what's happening today.</p>
+    </div>
+    <div class="text-muted small"><i class="fas fa-calendar me-1"></i>@DateTime.Today.ToString("dddd, MMMM dd, yyyy")</div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="fas fa-user-graduate fa-2x"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Total Students</div>
+                        <div class="h3 mb-0 fw-bold">@Model.TotalStudents</div>
+                        <div class="text-success small"><i class="fas fa-check-circle me-1"></i>@Model.ActiveStudents active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                        <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Teachers</div>
+                        <div class="h3 mb-0 fw-bold">@Model.TotalTeachers</div>
+                        <div class="text-success small"><i class="fas fa-check-circle me-1"></i>@Model.ActiveTeachers active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                        <i class="fas fa-school fa-2x"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Classes</div>
+                        <div class="h3 mb-0 fw-bold">@Model.TotalClasses</div>
+                        <div class="text-info small"><i class="fas fa-book me-1"></i>@Model.TotalSubjects subjects</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info rounded-3 p-3 me-3">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Today's Attendance</div>
+                        <div class="h3 mb-0 fw-bold">@Model.TodayAttendance</div>
+                        <div class="text-info small"><i class="fas fa-percentage me-1"></i>@Model.AttendanceRate% rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Class Summary Table -->
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-school me-2 text-primary"></i>Class Overview</h5>
+                <a asp-controller="Classes" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Class</th>
+                                <th>Teacher</th>
+                                <th>Students</th>
+                                <th>Capacity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cls in Model.ClassSummaries)
+                            {
+                                var pct = cls.MaxStudents > 0 ? (int)((double)cls.StudentCount / cls.MaxStudents * 100) : 0;
+                                <tr>
+                                    <td class="fw-semibold">@cls.ClassName</td>
+                                    <td><span class="badge bg-light text-dark">@cls.Teacher</span></td>
+                                    <td>@cls.StudentCount / @cls.MaxStudents</td>
+                                    <td style="min-width:120px">
+                                        <div class="progress" style="height:8px">
+                                            <div class="progress-bar @(pct > 80 ? "bg-danger" : pct > 60 ? "bg-warning" : "bg-success")" style="width:@pct%"></div>
+                                        </div>
+                                        <small class="text-muted">@pct%</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-bolt me-2 text-warning"></i>Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var activity in Model.RecentActivities)
+                {
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="activity-icon bg-@activity.Color bg-opacity-10 text-@activity.Color rounded-circle p-2 me-3">
+                            <i class="@activity.Icon"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="small fw-semibold">@activity.Message</div>
+                            <div class="text-muted" style="font-size:11px">@activity.Time</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Students + Quick Actions -->
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-trophy me-2 text-warning"></i>Top Performing Students</h5>
+                <a asp-controller="Grades" asp-action="Index" class="btn btn-sm btn-outline-warning">View All Grades</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.TopStudents.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>#</th><th>Student</th><th>Class</th><th>Average</th><th>Grade</th></tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.TopStudents.Count; i++)
+                                {
+                                    var s = Model.TopStudents[i];
+                                    <tr>
+                                        <td><span class="badge @(i == 0 ? "bg-warning" : i == 1 ? "bg-secondary" : "bg-light text-dark")">@(i + 1)</span></td>
+                                        <td class="fw-semibold">@s.Name</td>
+                                        <td>@s.ClassName</td>
+                                        <td>
+                                            <div class="progress" style="height:6px;width:80px;display:inline-block;vertical-align:middle">
+                                                <div class="progress-bar bg-success" style="width:@s.AverageScore%"></div>
+                                            </div>
+                                            <small class="ms-1">@s.AverageScore%</small>
+                                        </td>
+                                        <td><span class="badge bg-success">@s.Grade</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted"><i class="fas fa-star fa-2x mb-2 d-block opacity-25"></i>No grade data available yet</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-rocket me-2 text-primary"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body d-grid gap-2">
+                <a asp-controller="Students" asp-action="Create" class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Add New Student</a>
+                <a asp-controller="Teachers" asp-action="Create" class="btn btn-success"><i class="fas fa-user-tie me-2"></i>Add New Teacher</a>
+                <a asp-controller="Attendance" asp-action="Index" class="btn btn-info text-white"><i class="fas fa-calendar-check me-2"></i>Take Attendance</a>
+                <a asp-controller="Grades" asp-action="Create" class="btn btn-warning"><i class="fas fa-star me-2"></i>Record Grades</a>
+                <a asp-controller="Classes" asp-action="Create" class="btn btn-outline-secondary"><i class="fas fa-plus me-2"></i>Create Class</a>
+            </div>
+        </div>
+    </div>
+</div>

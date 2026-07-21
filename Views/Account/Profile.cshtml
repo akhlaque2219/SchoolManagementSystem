@@ -1,0 +1,42 @@
+@model ApplicationUser
+@{ ViewData["Title"] = "My Profile"; var role = (string)ViewBag.Role; }
+
+<div class="mt-4 mb-3">
+    <h1 class="h3 fw-bold"><i class="fas fa-user-circle me-2 text-primary"></i>My Profile</h1>
+</div>
+
+<div class="row g-4" style="max-width:850px">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-4">
+            <div class="avatar-circle-xl mx-auto mb-3" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#f5a623,#e8850a);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;font-weight:700;">
+                @Model.FirstName[0]@Model.LastName[0]
+            </div>
+            <h5 class="fw-bold mb-1">@Model.FullName</h5>
+            <span class="badge bg-primary mb-2">@role</span>
+            <div class="small text-muted">@Model.Email</div>
+            @if (!string.IsNullOrEmpty(Model.PhoneNumber)) { <div class="small text-muted">@Model.PhoneNumber</div> }
+            <hr>
+            <div class="small text-muted">Joined: @Model.CreatedAt.ToString("MMM dd, yyyy")</div>
+            @if (Model.LastLogin.HasValue) { <div class="small text-muted">Last login: @Model.LastLogin.Value.ToLocalTime().ToString("MMM dd, HH:mm")</div> }
+            <div class="mt-2"><span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">@(Model.IsActive ? "Active" : "Inactive")</span></div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3"><h6 class="fw-semibold mb-0">Account Details</h6></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">Full Name</dt><dd class="col-sm-8">@Model.FullName</dd>
+                    <dt class="col-sm-4 text-muted">Email</dt><dd class="col-sm-8">@Model.Email</dd>
+                    <dt class="col-sm-4 text-muted">Phone</dt><dd class="col-sm-8">@(Model.PhoneNumber ?? "—")</dd>
+                    <dt class="col-sm-4 text-muted">Role</dt><dd class="col-sm-8"><span class="badge bg-primary">@role</span></dd>
+                    <dt class="col-sm-4 text-muted">Username</dt><dd class="col-sm-8"><code>@Model.UserName</code></dd>
+                    <dt class="col-sm-4 text-muted">Status</dt><dd class="col-sm-8"><span class="badge @(Model.IsActive?"bg-success":"bg-danger")">@(Model.IsActive?"Active":"Inactive")</span></dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a asp-action="ChangePassword" class="btn btn-outline-warning"><i class="fas fa-key me-2"></i>Change Password</a>
+            </div>
+        </div>
+    </div>
+</div>

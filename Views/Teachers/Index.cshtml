@@ -1,0 +1,70 @@
+@model IEnumerable<Teacher>
+@{ ViewData["Title"] = "Teachers"; }
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <div>
+        <h1 class="h3 mb-0 fw-bold"><i class="fas fa-chalkboard-teacher me-2 text-success"></i>Teachers</h1>
+        <p class="text-muted mb-0">Manage faculty members</p>
+    </div>
+    <a asp-action="Create" class="btn btn-success"><i class="fas fa-user-plus me-2"></i>Add Teacher</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Name, ID, Email...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="isActive" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-success me-2"><i class="fas fa-filter me-1"></i>Filter</button>
+                <a asp-action="Index" class="btn btn-outline-secondary"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var t in Model)
+    {
+        <div class="col-xl-3 col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="avatar-circle @(t.Gender == "Female" ? "bg-pink" : "bg-success") text-white mx-auto mb-3">
+                        @t.FirstName[0]@t.LastName[0]
+                    </div>
+                    <h6 class="fw-bold mb-1">@t.FullName</h6>
+                    <p class="text-muted small mb-1"><code>@t.TeacherId</code></p>
+                    <p class="text-primary small mb-2">@t.Specialization</p>
+                    <p class="text-muted small mb-2">@t.Qualification</p>
+                    @if (t.IsActive)
+                    { <span class="badge bg-success mb-2"><i class="fas fa-circle me-1" style="font-size:8px"></i>Active</span> }
+                    else
+                    { <span class="badge bg-secondary mb-2">Inactive</span> }
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                        <a asp-action="Delete" asp-route-id="@t.Id" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="fas fa-chalkboard-teacher fa-3x mb-3 opacity-25 d-block"></i>
+            <h5>No teachers found</h5>
+            <a asp-action="Create" class="btn btn-success mt-2">Add First Teacher</a>
+        </div>
+    }
+</div>

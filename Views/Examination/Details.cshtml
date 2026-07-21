@@ -1,0 +1,82 @@
+@model Examination
+@{ ViewData["Title"] = "Exam Details"; var statusColor = Model.Status switch { ExamStatus.Scheduled => "primary", ExamStatus.Ongoing => "warning", ExamStatus.Completed => "success", _ => "secondary" }; }
+
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li><li class="breadcrumb-item"><a asp-action="Index">Examinations</a></li><li class="breadcrumb-item active">@Model.Title</li></ol></nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="h3 fw-bold"><i class="fas fa-file-alt me-2 text-danger"></i>@Model.Title</h1>
+        <div class="d-flex gap-2">
+            <a asp-action="AddSchedule" asp-route-examId="@Model.Id" class="btn btn-danger"><i class="fas fa-plus me-2"></i>Add Subject</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="fas fa-edit me-2"></i>Edit</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold text-danger mb-3">Exam Information</h6>
+                <div class="small mb-2"><span class="text-muted">Type:</span> <span class="badge bg-light text-dark">@Model.ExamType</span></div>
+                <div class="small mb-2"><span class="text-muted">Status:</span> <span class="badge bg-@statusColor">@Model.Status</span></div>
+                <div class="small mb-2"><span class="text-muted">Class:</span> @(Model.Class?.FullName ?? "All Classes")</div>
+                <div class="small mb-2"><span class="text-muted">Start:</span> @Model.StartDate.ToString("MMM dd, yyyy")</div>
+                <div class="small mb-2"><span class="text-muted">End:</span> @Model.EndDate.ToString("MMM dd, yyyy")</div>
+                <div class="small mb-2"><span class="text-muted">Duration:</span> @Model.Duration</div>
+                <div class="small mb-2"><span class="text-muted">Year:</span> @Model.AcademicYear</div>
+                <div class="small">
+                    <span class="text-muted">Results:</span>
+                    @if (Model.ResultDeclared) { <span class="badge bg-success">Declared</span> } else { <span class="badge bg-warning text-dark">Pending</span> }
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Description)) { <hr><p class="small text-muted mb-0">@Model.Description</p> }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="fw-semibold mb-0"><i class="fas fa-calendar-alt me-2 text-danger"></i>Subject Schedule (@Model.Schedules.Count)</h6>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Schedules.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Subject</th><th>Date</th><th>Time</th><th>Room</th><th>Marks</th><th>Invigilator</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Model.Schedules.OrderBy(x => x.ExamDate))
+                                {
+                                    <tr>
+                                        <td class="fw-semibold">@(s.Subject?.Name ?? "—")</td>
+                                        <td>@s.ExamDate.ToString("MMM dd, yyyy")</td>
+                                        <td><span class="badge bg-light text-dark">@s.TimeRange</span></td>
+                                        <td>@s.Room</td>
+                                        <td><strong>@s.TotalMarks</strong> <small class="text-muted">(pass @s.PassMarks)</small></td>
+                                        <td class="small text-muted">@(s.Teacher?.FullName ?? "—")</td>
+                                        <td>
+                                            <form asp-action="DeleteSchedule" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@s.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this schedule?')"><i class="fas fa-times"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-5 text-center text-muted">
+                        <i class="fas fa-calendar-plus fa-2x mb-3 d-block opacity-25"></i>
+                        No subjects scheduled yet. <a asp-action="AddSchedule" asp-route-examId="@Model.Id">Add a subject schedule</a>.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
